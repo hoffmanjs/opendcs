@@ -172,10 +172,16 @@ public class TsGroupListPanel extends JPanel
 	 */
 	public TsGroup getSelectedTsGroup()
 	{
-		int r = tsGroupsListTable.getSelectedRow();
-		if (r == -1)
+		int row = tsGroupsListTable.getSelectedRow();				
+		
+		if (row == -1)
 			return null;
-		return model.getTsGroupAt(r);
+
+		//Get the correct selected row from the model
+		int rowModel = this.tsGroupsListTable.convertRowIndexToModel(row);
+		TsGroupsSelectTableModel model = (TsGroupsSelectTableModel) tsGroupsListTable.getModel();
+				
+		return model.getTsGroupAt(rowModel);
 	}
 
 	public int[] getSelectedRows()
