@@ -180,7 +180,6 @@ public class TsGroupListPanel extends JPanel
 		//Get the correct selected row from the model
 		int rowModel = this.tsGroupsListTable.convertRowIndexToModel(row);
 		TsGroupsSelectTableModel model = (TsGroupsSelectTableModel) tsGroupsListTable.getModel();
-				
 		return model.getTsGroupAt(rowModel);
 	}
 

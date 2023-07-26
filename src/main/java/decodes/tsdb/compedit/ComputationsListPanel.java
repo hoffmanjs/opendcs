@@ -155,8 +155,7 @@ public class ComputationsListPanel extends ListPanel
 	protected void doOpen()
 	{
 		int r = compListTable.getSelectedRow();
-		int rowModel = compListTable.convertRowIndexToModel(r);		
-
+		int rowModel = compListTable.convertRowIndexToModel(r);
 		if (rowModel == -1)
 		{
 			parentFrame.showError(

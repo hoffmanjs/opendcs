@@ -433,7 +433,7 @@ public class TsListSelectPanel extends JPanel
 			final List<TimeSeriesIdentifier> filteredIdentifiers = filterTsids();
 			filterTable(filteredIdentifiers);
 			List<NavigableSet<String>> comboBoxValues = new ArrayList<>();
-			for(String part : theTsDb.getTsIdParts())			
+			for(String part : theTsDb.getTsIdParts())
 			{
 				NavigableSet<String> items = new TreeSet<>();
 				for(TimeSeriesIdentifier tsid : filteredIdentifiers)
@@ -442,7 +442,7 @@ public class TsListSelectPanel extends JPanel
 					{
 						items.add(tsid.getPart(part));
 					}
-				}				
+				}
 				comboBoxValues.add(items);
 			}
 			for(int i = 0; i < tsidFilterComboBoxes.size() && i < comboBoxValues.size(); i++)
@@ -497,11 +497,11 @@ public class TsListSelectPanel extends JPanel
 			List<TimeSeriesIdentifier> retval = new ArrayList<>();
 			for(TimeSeriesIdentifier timeSeriesIdentifier : tsidList)
 			{
-				String[] parts = timeSeriesIdentifier.getParts();				
+				String[] parts = timeSeriesIdentifier.getParts();
 				boolean add = true;
 				for(int i = 0; i < filteredPaths.size() && i < parts.length; i++)
 				{
-					String filter = filteredPaths.get(i);					
+					String filter = filteredPaths.get(i);
 					add = filter == null || filter.equals(timeSeriesIdentifier.getPart(parts[i]));
 					if(!add)
 					{
