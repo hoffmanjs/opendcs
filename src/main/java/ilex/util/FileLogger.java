@@ -7,6 +7,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import java.io.*;
 import java.nio.channels.FileChannel;
 
@@ -27,7 +28,7 @@ public class FileLogger extends Logger
 	/**
 	* The current output PrintStream
 	*/
-	private PrintStream output = null;
+	private final AtomicReference<PrintStream> output = new AtomicReference<>();
 
 	/**
 	* The filename supplied to the constructor.
@@ -93,6 +94,28 @@ public class FileLogger extends Logger
 		this.filename = EnvExpander.expand(filename);
 		this.maxLength = maxLength;
 		openNewLog();
+		writerThread = new Thread(() ->
+			{
+				while(closeOperations.get() == false)
+				{
+					try
+					{
+						String msg = queue.poll(1, TimeUnit.SECONDS);
+						PrintStream ps = output.get();
+						if (msg != null && ps != null && !ps.checkError())
+						{
+							ps.println(msg);
+						}
+					}
+					catch (InterruptedException ex)
+					{
+
+					}
+				}
+			},
+			"FileLogger-Writer");
+		writerThread.setDaemon(true);
+		writerThread.start();
 	}
 
 	/**
@@ -100,14 +123,12 @@ public class FileLogger extends Logger
 	*/
 	public void close( )
 	{
-		closeOperations.set(true);
-		if (output != null)
+		PrintStream ps = output.getAndSet(null);
+		if (ps != null)
 		{
-			output.close();
+			ps.close();
 		}
 		fileChan = null;
-		output = null;
-		
 	}
 
 	/**
@@ -119,7 +140,16 @@ public class FileLogger extends Logger
 	*/
 	public synchronized void doLog( int priority, String text )
 	{
-		queue.add(standardMessage(priority, text));
+		try
+		{
+			queue.put(standardMessage(priority, text));
+		}
+		catch (InterruptedException ex)
+		{
+			// NOTE: use of STDERR is intentional here. This is an error with logging itself.
+			System.err.println("Unable to put data in the log message queue.");
+			ex.printStackTrace();
+		}
 	}
 
 	/**
@@ -162,27 +192,7 @@ public class FileLogger extends Logger
 			} else {
 				os = new FileOutputStream(outputFile, appendFlag);
 			}
-			output = new PrintStream(os, true);
-			writerThread = new Thread(() ->
-			{
-				while(closeOperations.get() == false)
-				{
-					try
-					{
-						String msg = queue.poll(1, TimeUnit.SECONDS);
-						if (msg != null && output != null && !output.checkError())
-						{
-							output.println(msg);
-						}
-					}
-					catch (InterruptedException ex)
-					{
-
-					}
-				}
-			},
-			"FileLogger-Writer");
-			writerThread.start();
+			output.set(new PrintStream(os, true));
 		}
 		catch(IOException ex)
 		{
@@ -210,7 +220,7 @@ public class FileLogger extends Logger
 	*/
 	public PrintStream getLogOutput( )
 	{
-		return output;
+		return output.get();
 	}
 
 	/**

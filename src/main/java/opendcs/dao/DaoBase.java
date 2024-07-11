@@ -456,6 +456,28 @@ public class DaoBase
             {
                 stmt.setInt(index,(Integer)param);
             }
+            else if (param instanceof Boolean)
+            {
+                Boolean v = (Boolean)param;
+                String value = "";
+                // There is a db.sqlBoolean but it tries to
+                // be helpful and wraps the return in ' ' which
+                // we don't need or want here.
+                // A callback to the "TimeseriesDatabase" class
+                // is probably the best solution for the data that various
+                // so they can take responsibility. That's also roughly
+                // how JDBI will work. That'll be handled as part of
+                // a separate PR.
+                if (db.isOracle())
+                {
+                    value = v ? "Y" : "N";
+                }
+                else
+                {
+                    value = v ? "TRUE" : "FALSE";
+                }
+                stmt.setString(index, value);
+            }
             else if (param instanceof String)
             {
                 stmt.setString(index,(String)param);
@@ -645,7 +667,7 @@ public class DaoBase
      * @param query query that may return more than 1 result
      * @param consumer function to take the ResultSet and process it into a Object of type R (or null)
      * @param parameters variables to bind into the query.
-     * @return
+     * @return value provided by the consumer or null
      * @throws SQLException
      */
     public <R> R getFirstResult(String query, ResultSetFunction<R> consumer, Object... parameters) throws SQLException
@@ -668,6 +690,30 @@ public class DaoBase
         else
         {
             return null;
+        }
+    }
+
+    /**
+     * A query that may return more than one result; but we only care about the first one.
+     *
+     * @param <R> The return type
+     * @param query query that may return more than 1 result
+     * @param consumer function to take the ResultSet and process it into a Object of type R (or null)
+     * @param defaultvalue value to provide if no query results
+     * @param parameters variables to bind into the query.
+     * @return The value from the query, or the defaultValue if the query returns nothing
+     * @throws SQLException
+     */
+    public <R> R getFirstResultOr(String query, ResultSetFunction<R> consumer, R defaultValue, Object... parameters) throws SQLException
+    {
+        R value = getFirstResult(query, consumer, parameters);
+        if (value == null)
+        {
+            return defaultValue;
+        }
+        else
+        {
+            return value;
         }
     }
 

@@ -23,6 +23,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 
+import ilex.gui.Help;
 import lrgs.common.DcpAddress;
 import lrgs.common.DcpMsgFlag;
 import lrgs.common.SearchCriteria;
@@ -61,7 +62,7 @@ public class RoutingSpecEditPanel
 	static ResourceBundle dbeditLabels = DbEditorFrame.getDbeditLabels();
 
 	private EntityOpsPanel entityOpsPanel = new EntityOpsPanel(this);
-	private PropertiesEditPanel propertiesEditPanel = new PropertiesEditPanel(new Properties());
+	private PropertiesEditPanel propertiesEditPanel = PropertiesEditPanel.from(new Properties());
 	private SearchCriteriaEditPanel scEditPanel = new SearchCriteriaEditPanel();
 	private JTextField nameField = new JTextField();
 	private JLabel consumerArgLabel = new JLabel();
@@ -243,8 +244,8 @@ public class RoutingSpecEditPanel
 		consumerTypeSelected();
 		outputFormatSelected();
 
-		propertiesEditPanel.setProperties(editProps);
-		propertiesEditPanel.setPropertiesOwner(this);
+		propertiesEditPanel.getModel().setProperties(editProps);
+		propertiesEditPanel.getModel().setPropertiesOwner(this);
 	}
 
 	/**
@@ -266,7 +267,7 @@ public class RoutingSpecEditPanel
 				(String)presentationGroupCombo.getSelectedItem();
 
 		// Get the properties
-		propertiesEditPanel.saveChanges(); // saves to editProps
+		propertiesEditPanel.getModel().saveChanges(); // saves to editProps
 		
 		theObject.getProperties().clear();
 		PropertiesUtil.copyProps(theObject.getProperties(), editProps);
@@ -538,7 +539,7 @@ Logger.instance().debug3("Added netlist name '" + nln + "'");
 		
 		combinedProps = new PropertySpec[propSpecs.size()];
 		propSpecs.toArray(combinedProps);
-		propertiesEditPanel.setPropertiesOwner(this);
+		propertiesEditPanel.getModel().setPropertiesOwner(this);
 	}
 
 	private void adjustSearchCritFor(DataSourceExec currentDataSource)
@@ -671,9 +672,10 @@ Logger.instance().debug3("Added netlist name '" + nln + "'");
 		tp.remove(this);
 	}
 
-	/** @see EntityOpsController */
+	@Override
 	public void help()
 	{
+		Help.open();
 	}
 
 	@Override
@@ -690,4 +692,3 @@ Logger.instance().debug3("Added netlist name '" + nln + "'");
 		return true;
 	}
 }
-

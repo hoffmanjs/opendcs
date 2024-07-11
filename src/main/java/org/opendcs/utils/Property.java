@@ -1,3 +1,18 @@
+/**
+ * Copyright 2024 The OpenDCS Consortium and contributors
+ *
+ *  Licensed under the Apache License, Version 2.0 (the "License");
+ *  you may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ *  Unless required by applicable law or agreed to in writing, software
+ *  distributed under the License is distributed on an "AS IS" BASIS,
+ *  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *  See the License for the specific language governing permissions and
+ *  limitations under the License.
+ */
 package org.opendcs.utils;
 
 import java.io.IOException;
@@ -7,6 +22,7 @@ import java.util.Properties;
 import java.util.ServiceLoader;
 
 import org.opendcs.spi.properties.PropertyValueProvider;
+import org.opendcs.utils.properties.PropertySettings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -106,9 +122,10 @@ public class Property
                 }
             }
             /*
-             * We really only need this when debugging.
-             */
-            if (log.isTraceEnabled())
+             * We really only need this when debugging. So only enable if 
+             * property is intentionally set.
+            */
+            if (PropertySettings.TRACE_PROPERTY_PROVIDERS == true && log.isTraceEnabled())
             {
                 log.atTrace()
                    .setCause(new Exception("Unable to find variable processor."))
